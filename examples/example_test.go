@@ -1,9 +1,9 @@
-package orbitallog_test
+package orbitallog
 
 import (
 	"time"
 
-	"github.com/v1ctorw1ll1an/orbitallog/orbitallog"
+	"github.com/v1ctorw1ll1an/orbitallog"
 )
 
 func ExampleLogger() {
