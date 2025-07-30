@@ -17,7 +17,11 @@ func TestOrbitallog(t *testing.T) {
 		if err != nil {
 			t.Fatalf("erro ao criar logger: %v", err)
 		}
-		defer logger.Close()
+		defer func() {
+			if err := logger.Close(); err != nil {
+				t.Errorf("erro ao fechar logger: %v", err)
+			}
+		}()
 
 		// Espera que o arquivo de log do dia exista
 		expectedFile := filepath.Join(dir, prefix+"_"+time.Now().Format("02-01-2006")+".log")
@@ -29,7 +33,12 @@ func TestOrbitallog(t *testing.T) {
 	t.Run("TestLoggerWritesToFile", func(t *testing.T) {
 		dir := t.TempDir()
 		logger, _ := New(dir, "testapp", 24*time.Hour, true)
-		defer logger.Close()
+
+		defer func() {
+			if err := logger.Close(); err != nil {
+				t.Errorf("erro ao fechar logger: %v", err)
+			}
+		}()
 
 		logger.Printf("Mensagem de teste %d", 123)
 
@@ -62,7 +71,11 @@ func TestOrbitallog(t *testing.T) {
 		}
 
 		logger, _ := New(dir, prefix, maxAge, true)
-		defer logger.Close()
+		defer func() {
+			if err := logger.Close(); err != nil {
+				t.Errorf("erro ao fechar logger: %v", err)
+			}
+		}()
 
 		// Rodar limpeza manual
 		if err := logger.cleanupOldFiles(); err != nil {
@@ -90,7 +103,11 @@ func ExampleLogger() {
 	if err != nil {
 		panic(err)
 	}
-	defer logger.Close()
+	defer func() {
+		if err := logger.Close(); err != nil {
+			_ = logger.Close()
+		}
+	}()
 
 	logger.Printf("Servidor iniciado em %v", time.Now())
 	logger.Printf("Evento: %s", "Conexão recebida")
