@@ -2,6 +2,7 @@ package orbitallog
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,27 +11,29 @@ import (
 )
 
 type Logger struct {
-	mu      sync.Mutex
-	file    *os.File
-	logger  *log.Logger
-	logDir  string
-	prefix  string
-	maxAge  time.Duration
-	logPath string
-	logDate string
+	mu        sync.Mutex
+	file      *os.File
+	logger    *log.Logger
+	logDir    string
+	prefix    string
+	maxAge    time.Duration
+	logPath   string
+	logDate   string
+	toConsole bool // Novo: controla se deve logar no console também
 }
 
 // New cria o logger com limpeza inicial
-func New(logDir, prefix string, maxAge time.Duration) (*Logger, error) {
+func New(logDir, prefix string, maxAge time.Duration, toConsole bool) (*Logger, error) {
 	// Garante que a pasta existe
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		return nil, fmt.Errorf("erro ao criar pasta de logs: %w", err)
 	}
 
 	l := &Logger{
-		logDir: logDir,
-		prefix: prefix,
-		maxAge: maxAge,
+		logDir:    logDir,
+		prefix:    prefix,
+		maxAge:    maxAge,
+		toConsole: toConsole,
 	}
 
 	// Limpa arquivos antigos
@@ -56,7 +59,13 @@ func (l *Logger) openLogFile() error {
 		return fmt.Errorf("erro ao abrir log: %w", err)
 	}
 	l.file = file
-	l.logger = log.New(file, "", log.LstdFlags)
+
+	// MultiWriter para escrever no arquivo e opcionalmente no console
+	if l.toConsole {
+		l.logger = log.New(io.MultiWriter(file, os.Stdout), "", log.LstdFlags)
+	} else {
+		l.logger = log.New(file, "", log.LstdFlags)
+	}
 	return nil
 }
 

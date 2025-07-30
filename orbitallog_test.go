@@ -13,7 +13,7 @@ func TestOrbitallog(t *testing.T) {
 		prefix := "testapp"
 		maxAge := 24 * time.Hour
 
-		logger, err := New(dir, prefix, maxAge)
+		logger, err := New(dir, prefix, maxAge, true)
 		if err != nil {
 			t.Fatalf("erro ao criar logger: %v", err)
 		}
@@ -28,7 +28,7 @@ func TestOrbitallog(t *testing.T) {
 
 	t.Run("TestLoggerWritesToFile", func(t *testing.T) {
 		dir := t.TempDir()
-		logger, _ := New(dir, "testapp", 24*time.Hour)
+		logger, _ := New(dir, "testapp", 24*time.Hour, true)
 		defer logger.Close()
 
 		logger.Printf("Mensagem de teste %d", 123)
@@ -61,7 +61,7 @@ func TestOrbitallog(t *testing.T) {
 			t.Fatalf("erro ao alterar data do log antigo: %v", err)
 		}
 
-		logger, _ := New(dir, prefix, maxAge)
+		logger, _ := New(dir, prefix, maxAge, true)
 		defer logger.Close()
 
 		// Rodar limpeza manual
@@ -77,7 +77,7 @@ func TestOrbitallog(t *testing.T) {
 
 	t.Run("TestLoggerClose", func(t *testing.T) {
 		dir := t.TempDir()
-		logger, _ := New(dir, "closeapp", 24*time.Hour)
+		logger, _ := New(dir, "closeapp", 24*time.Hour, true)
 		if err := logger.Close(); err != nil {
 			t.Errorf("erro ao fechar logger: %v", err)
 		}
@@ -86,7 +86,7 @@ func TestOrbitallog(t *testing.T) {
 
 func ExampleLogger() {
 	// Criar logger na pasta "logs", prefixo "app", guardando logs por 7 dias
-	logger, err := New("logs", "app", 7*24*time.Hour)
+	logger, err := New("logs", "app", 7*24*time.Hour, false)
 	if err != nil {
 		panic(err)
 	}
